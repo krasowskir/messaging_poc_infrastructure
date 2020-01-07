@@ -1,0 +1,11 @@
+jms:
+  queue:
+    destination: testQueue
+
+logging:
+  level:
+    root:
+    org:
+      apache:
+        activemq:
+          artemis: DEBUG

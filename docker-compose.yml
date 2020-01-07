@@ -1,0 +1,88 @@
+version: '3'
+services:
+  activemq0:
+    image: vromero/activemq-artemis:2.10.1
+    ports:
+      - 8161:8161
+    volumes:
+      - "./server0/artemis-users.properties:/var/lib/artemis/etc/artemis-users.properties"
+      - "./server0/artemis-roles.properties:/var/lib/artemis/etc/artemis-roles.properties"
+      - "./server0/broker.xml:/var/lib/artemis/etc/broker.xml"
+    privileged: true
+    sysctls:
+      - net.ipv4.icmp_echo_ignore_broadcasts=0
+    expose:
+      - 9876
+      - 61616
+      - 61617
+  activemq1:
+    image: vromero/activemq-artemis:2.10.1
+    volumes:
+      - "./server1/artemis-users.properties:/var/lib/artemis/etc/artemis-users.properties"
+      - "./server1/artemis-roles.properties:/var/lib/artemis/etc/artemis-roles.properties"
+      - "./server1/broker.xml:/var/lib/artemis/etc/broker.xml"
+    expose:
+      - 61616
+      - 61617
+      - 9876
+    ports:
+      - 8162:8161
+    privileged: true
+    sysctls:
+      - net.ipv4.icmp_echo_ignore_broadcasts=0
+    depends_on:
+      - "activemq0"
+  # activemq2:
+  #   image: vromero/activemq-artemis:2.10.1
+  #   ports:
+  #     - 8163:8161
+  #   volumes:
+  #     - "./server2/artemis-users.properties:/var/lib/artemis/etc/artemis-users.properties"
+  #     - "./server2/artemis-roles.properties:/var/lib/artemis/etc/artemis-roles.properties"
+  #     - "./server2/broker.xml:/var/lib/artemis/etc/broker.xml"
+  #   privileged: true
+  #   sysctls:
+  #     - net.ipv4.icmp_echo_ignore_broadcasts=0
+  #   expose:
+  #     - 9876
+  #     - 61617
+  #     - 61616
+  # activemq3:
+  #   image: vromero/activemq-artemis:2.10.1
+  #   volumes:
+  #     - "./server3/artemis-users.properties:/var/lib/artemis/etc/artemis-users.properties"
+  #     - "./server3/artemis-roles.properties:/var/lib/artemis/etc/artemis-roles.properties"
+  #     - "./server3/broker.xml:/var/lib/artemis/etc/broker.xml"
+  #   expose:
+  #     - 61616
+  #     - 61617
+  #     - 9876
+  #   ports:
+  #     - 8164:8161
+  #   privileged: true
+  #   sysctls:
+  #     - net.ipv4.icmp_echo_ignore_broadcasts=0
+  #   depends_on:
+  #     - "activemq2"
+  producer_app:
+    build: ./producerApp
+    ports:
+      - 8081:8080
+    expose:
+      - 61616
+      - 61617
+    privileged: true
+    sysctls:
+      - net.ipv4.icmp_echo_ignore_broadcasts=0
+    depends_on:
+      - "activemq0"
+  consumer_app:
+    build: ./consumerApp
+    expose:
+      - 61616
+      - 61617
+    privileged: true
+    sysctls:
+      - net.ipv4.icmp_echo_ignore_broadcasts=0
+    depends_on:
+      - "activemq0"
